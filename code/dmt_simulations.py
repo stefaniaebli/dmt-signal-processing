@@ -4,7 +4,7 @@ import random
 import gudhi as gd
 from matplotlib import pyplot as plt
 from matplotlib import colors as mcolors
-import dmtenergy as dmt
+import dmtsignal as dmt
 import dmtvisual as dmtvis
 
 

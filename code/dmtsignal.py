@@ -581,7 +581,7 @@ def sequence_collpases(X,kX,collapses,dim_collapses):
     
 
 def energy_sequence(all_psi,all_phi):
-    """Return energy and matrix of sequence of collapsing  in X
+    """Return ||1-psiphi|| and the matrix 1-psiphi
     """   
     psi1=all_psi[-1]
     for j in range(2,len(all_psi)+1):
@@ -597,7 +597,7 @@ def energy_sequence(all_psi,all_phi):
 
 
 def phipsi(X,kX,collapses,dim_collapses,signal,type_collapse='up'):
-    """Returns phipsi of the signal
+    """Returns phipsi(s) of the signal
     """  
     c=collapses
     d=dim_collapses
@@ -618,8 +618,7 @@ def phipsi(X,kX,collapses,dim_collapses,signal,type_collapse='up'):
     
     matrix= phi1@psi1
     ##The following lines can be taken away when doing collapses in different dimensions
-         
-        
+                
     if type_collapse=='up':  
         a=0
         if dim_collapses[0]>0: 
@@ -628,7 +627,7 @@ def phipsi(X,kX,collapses,dim_collapses,signal,type_collapse='up'):
         matrix1=matrix[a:b,a:b]
         phipsis= matrix1@np.array(signal).T
     
-    
+   
     if type_collapse=='down':        
         
         a=len(X[dim_collapses[0]])
@@ -641,7 +640,7 @@ def phipsi(X,kX,collapses,dim_collapses,signal,type_collapse='up'):
 
 
 def loss_signal(X,kX,collapses,dim_collapses,signal,type_collapse='up'):
-    """Returns loss of a signal after a sequence of collapsing  in X
+    """Returns the topological error s-psiphi(s) of a signal after a sequence of collapsing  in X
     """  
     c=collapses
     d=dim_collapses
@@ -680,6 +679,8 @@ def loss_signal(X,kX,collapses,dim_collapses,signal,type_collapse='up'):
     return loss
 
 def best_up_collapse(X,kX,dimq,signal): 
+    """Returns the up-collapse V which minimize the topological reconstructione error ||s-psi_Vphi_V(s)|^2, as described in Algorithm 1
+    """  
     s=np.array(signal)**2
     Bq=kX[dimq]
     BT=Bq.transpose()
@@ -711,7 +712,9 @@ def best_up_collapse(X,kX,dimq,signal):
     
     return [[list(list(X[dimq].keys())[q]),list(list(X[dimq+1].keys())[Wq])]],global_min
 
-def best_down_collapse(X,kX,dimq,signal): ##This function is the optimized version but it doesn't work
+def best_down_collapse(X,kX,dimq,signal): 
+    """Returns the down-collapse V which minimize the topological reconstructione error ||s-phi*_Vpsi*_V(s)|^2 
+    """  
     s=np.array(signal)**2
     Bq=kX[dimq]
     BT=Bq.copy()
@@ -748,6 +751,8 @@ def best_down_collapse(X,kX,dimq,signal): ##This function is the optimized versi
 
 
 def random_collapse(X,kX,dimq):
+    """Returns a random collapses V =(q,mu(q)) with fixed dim(q)
+    """ 
     nz=np.array(kX[dimq].nonzero())
     rand=np.random.choice(np.arange(len(nz[0])))
     Wq=nz[:,rand][1]
@@ -756,7 +761,8 @@ def random_collapse(X,kX,dimq):
 
     
 def sequence_optimal_up_collapses(X,kX,dimq,signal,steps,random=False):
-    
+    """Returns a sequence of up-collapse V by iterating single optimal up-collapses for a fixed number of steps. This imoplements Algorithm 2 of the paper
+    """ 
     dX=kX.copy()
     all_X=[X]
     all_signals=[signal]
@@ -803,7 +809,8 @@ def sequence_optimal_up_collapses(X,kX,dimq,signal,steps,random=False):
     
     
 def sequence_optimal_down_collapses(X,kX,dimq,signal,steps,random=False):
-    
+    """Returns a sequence of down-collapse V by iterating single optimal down-collapses for a fixed number of steps.
+    """
     dX=kX.copy()
     all_X=[X]
     all_signals=[signal]
@@ -849,6 +856,8 @@ def sequence_optimal_down_collapses(X,kX,dimq,signal,steps,random=False):
     
 
 def sequence_given_up_collapses(X,kX,dimq,signal,collapses):
+    """Returns the collapses complexes, the reconstruction error and the recontructed signal for a given up-matching
+    """
     
     dX=kX.copy()
     all_X=[X]
@@ -890,7 +899,8 @@ def sequence_given_up_collapses(X,kX,dimq,signal,collapses):
 
 
 def sequence_given_down_collapses(X,kX,dimq,signal,collapses):
-    
+    """Returns the collapses complexes, the reconstruction error and the recontructed signal for a given down-matching
+    """
     all_X=[X]
     dX=kX.copy()
     all_signals=[signal]
@@ -933,6 +943,8 @@ def sequence_given_down_collapses(X,kX,dimq,signal,collapses):
 
 
 def simulation_collapses(X,kX,dimq,signal,steps,random):
+    """Computes multiple instantiations of optimal or random collapses
+    """
     total_losses=[]
     for k in steps:
         all_X,collapses,all_losses,total_loss,all_signals,phispsis= sequence_optimal_up_collapses(X=X,kX=kX,dimq=dimq,signal=signal,steps=k,random=random)

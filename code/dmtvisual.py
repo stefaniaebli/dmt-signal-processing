@@ -9,7 +9,7 @@ import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib import colors as mcolors
 import matplotlib.cm as cm
-from dmtenergy import *
+from dmtsignal import *
 
 
 ###Plotting Function

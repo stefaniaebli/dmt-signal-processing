@@ -6,7 +6,7 @@
 [Celia Hacker]: https://www.epfl.ch/labs/hessbellwald-lab/members/celia-hacker/
 [Kelly Maggs]: https://people.epfl.ch/kelly.maggs?lang=en
 
-> we provide an approach to signal compression and reconstruction on complexes that leverages the tools of [discrete Morse theory]. 
+> We provide an approach to signal compression and reconstruction on complexes that leverages the tools of [discrete Morse theory]. 
 > The main goal is to collapse and reconstruct a complex together with a set of signals on its cells while preserving as much as possible the global topological structure of both the complex and the signal.
 > We study how the signal changes under particular types of discrete Morse theoretic collapses, showing its reconstruction error is trivial on specific components of the Hodge decomposition. 
 > Furthermore, we provide an algorithm to compute collapses with minimal reconstruction error.
@@ -28,8 +28,8 @@
 
 1. Clone this repository.
     ```sh
-    git clone https://github.com/stefaniaebli/simplicial_neural_networks.git
-    cd simplicial_neural_networks
+    git clone https://github.com/stefaniaebli/signal-DMTheory.git
+    cd signal-DMTheory
     ```
 
 2. Create the environment.

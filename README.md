@@ -1,4 +1,4 @@
-# Signal Compression and Reconstruction on Complexes via Discrete Morse Theory 
+-># Signal Compression and Reconstruction on Complexes via Discrete Morse Theory <-
 
 [Stefania Ebli], [Celia Hacker], [Kelly Maggs]
 

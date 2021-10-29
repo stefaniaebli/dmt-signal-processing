@@ -6,12 +6,16 @@
 [Celia Hacker]: https://www.epfl.ch/labs/hessbellwald-lab/members/celia-hacker/
 [Kelly Maggs]: https://people.epfl.ch/kelly.maggs?lang=en
 
-> We provide an approach to signal compression and reconstruction on complexes that leverages the tools of [discrete Morse theory] and signal processing on complexes. 
+> This repository contains the code used in the paper [Signal Compression and Reconstruction on Complexes via Discrete Morse Theory].
+> ![alt text](./figures/cartoon-git.png)
+> We provide an approach to signal compression and reconstruction on complexes that leverages the tools of [discrete Morse theory] and [signal processing on complexes]. 
 > The main goal is to collapse and reconstruct a complex together with a set of signals on its cells while preserving as much as possible the global topological structure of both the complex and the signal.
 > We study how the signal changes under particular types of discrete Morse theoretic collapses, showing its reconstruction error is trivial on specific components of the Hodge decomposition. 
 > Furthermore, we provide an algorithm to compute collapses with minimal reconstruction error.
 
 [discrete Morse theory]: https://en.wikipedia.org/wiki/Discrete_Morse_theory
+[signal processing on complexes]: https://arxiv.org/abs/1907.11577
+[Signal Compression and Reconstruction on Complexes via Discrete Morse Theory]: 
 
 * Paper: [`arXiv:`][paper] 
 
@@ -37,6 +41,8 @@
     CONDA_CHANNEL_PRIORITY=flexible conda env create -f environment.yml
     conda activate sdmt
     ```
+## Code
+*[file.py]: imple
 
 ## Notebooks
 

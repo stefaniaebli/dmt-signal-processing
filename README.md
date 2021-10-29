@@ -49,7 +49,7 @@
     conda activate sdmt
     ```
 ## Code
-* dmtsignal.py: implements the following features
+* **dmtsignal.py**: 
   * storing cell complexes
   * computing boundaries
   * computing laplacians
@@ -58,15 +58,14 @@
   * optimal up-matchings
   * optimal down-matchings
   * random sequences of collapses
-* dmtsignal.py: implements the following visualization features
+* **dmtvisual.py**: 
   * visualizing nodes, edges and traingles in simplicial complexes
   * visualizing collapsed complexes and the compressed and reconstructed signal
 ## Notebooks
 
-* [`bla.ipynb`]: bla
-* [`blabla.ipynb`]: blabla
-* [`blabla.ipynb`]: blabla
-
+* **up-collapses.ipynb**: exlopres signal compression and reconstruction with up-collapses and provides examplesof optimal up-matching algorithm.
+* **down-collapses.ipynb**: exlopres signal compression and reconstruction with down-collapses and provides examplesof optimal down-matching algorithm.
+ 
 
 
 

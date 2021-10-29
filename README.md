@@ -35,7 +35,7 @@
 2. Create the environment.
     ```sh
     CONDA_CHANNEL_PRIORITY=flexible conda env create -f environment.yml
-    conda activate snn
+    conda activate sdmt
     ```
 
 ## Notebooks

@@ -54,7 +54,7 @@
   * computing boundaries
   * computing laplacians
   * computing collapsed complexes and their respective boundaries
-  * computing compressed and reocntrudted signal
+  * computing compressed and reconstructed signal
   * optimal up-matchings
   * optimal down-matchings
   * random sequences of collapses

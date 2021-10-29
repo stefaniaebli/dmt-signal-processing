@@ -8,6 +8,7 @@
 
 > This repository contains the code used in the paper [Signal Compression and Reconstruction on Complexes via Discrete Morse Theory].
 > ![alt text](./figures/cartoon-git.png)
+> 
 > We provide an approach to signal compression and reconstruction on complexes that leverages the tools of [discrete Morse theory] and [signal processing on complexes]. 
 > The main goal is to collapse and reconstruct a complex together with a set of signals on its cells while preserving as much as possible the global topological structure of both the complex and the signal.
 > We study how the signal changes under particular types of discrete Morse theoretic collapses, showing its reconstruction error is trivial on specific components of the Hodge decomposition. 

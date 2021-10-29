@@ -14,14 +14,15 @@
 </p>
 
 >
-> 
-> We provide an approach to signal compression and reconstruction on complexes that leverages the tools of [discrete Morse theory] and [signal processing on complexes]. 
+> At the intersection of Topological Data Analysis (TDA) and machine learning, the field of [cellular signal processing] has advanced rapidly in recent years. 
+> In this context, each signal is processed using the combinatorial Laplacian, and the resultant Hodge decomposition. Meanwhile, discrete Morse theory has been widely used to speed up computations by reducing the size of complexes while preserving their global topological properties.
+> We provide an approach to signal compression and reconstruction on complexes that leverages the tools of [discrete Morse theory].
 > The main goal is to collapse and reconstruct a complex together with a set of signals on its cells while preserving as much as possible the global topological structure of both the complex and the signal.
 > We study how the signal changes under particular types of discrete Morse theoretic collapses, showing its reconstruction error is trivial on specific components of the Hodge decomposition. 
 > Furthermore, we provide an algorithm to compute collapses with minimal reconstruction error.
 
 [discrete Morse theory]: https://en.wikipedia.org/wiki/Discrete_Morse_theory
-[signal processing on complexes]: https://arxiv.org/abs/1907.11577
+[cellular signal processing]: https://arxiv.org/abs/1907.11577
 [Signal Compression and Reconstruction on Complexes via Discrete Morse Theory]: 
 
 * Paper: [`arXiv:`][paper] 
@@ -59,8 +60,8 @@
   * optimal down-matchings
   * random sequences of collapses
 * **dmtvisual.py**: 
-  * visualizing nodes, edges and traingles in simplicial complexes
-  * visualizing collapsed complexes and the compressed and reconstructed signal
+  * visualizes nodes, edges and traingles in simplicial complexes
+  * visualizes collapsed complexes and the compressed and reconstructed signal
 ## Notebooks
 
 * **up-collapses.ipynb**: exlopres signal compression and reconstruction with up-collapses and provides examplesof optimal up-matching algorithm.

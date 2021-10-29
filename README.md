@@ -4,10 +4,10 @@
 
 [Stefania Ebli]: https://people.epfl.ch/stefania.ebli
 [Celia Hacker]: https://www.epfl.ch/labs/hessbellwald-lab/members/celia-hacker/
-[Kelly Maggs]: https://people.epfl.ch/kelly.maggs?lang=en
+[Kelly Maggs]: https://people.epfl.ch/kelly.maggs?lang=enstyle=centerme
 
 > This repository contains the code used in the paper [Signal Compression and Reconstruction on Complexes via Discrete Morse Theory].
-><center> ![alt text](./figures/cartoon-git.png)
+>![alt text](./figures/cartoon-git.png style=centerme)
 > 
 > We provide an approach to signal compression and reconstruction on complexes that leverages the tools of [discrete Morse theory] and [signal processing on complexes]. 
 > The main goal is to collapse and reconstruct a complex together with a set of signals on its cells while preserving as much as possible the global topological structure of both the complex and the signal.

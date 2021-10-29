@@ -7,9 +7,11 @@
 [Kelly Maggs]: https://people.epfl.ch/kelly.maggs?lang=enstyle=centerme
 
 > This repository contains the code used in the paper [Signal Compression and Reconstruction on Complexes via Discrete Morse Theory].
-><p align="center">
-![alt text](./figures/cartoon-git.png)
+>
+<p align="center">
+   <img src="./figures/cartoon-git.png">
 </p>
+
 >
 > 
 > We provide an approach to signal compression and reconstruction on complexes that leverages the tools of [discrete Morse theory] and [signal processing on complexes]. 

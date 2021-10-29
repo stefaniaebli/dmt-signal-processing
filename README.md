@@ -49,8 +49,18 @@
     conda activate sdmt
     ```
 ## Code
-*[file.py]: imple
-
+* dmtsignal.py: implements the following features
+  * storing cell complexes
+  * computing boundaries
+  * computing laplacians
+  * computing collapsed complexes and their respective boundaries
+  * computing compressed and reocntrudted signal
+  * optimal up-matchings
+  * optimal down-matchings
+  * random sequences of collapses
+* dmtsignal.py: implements the following visualization features
+  * visualizing nodes, edges and traingles in simplicial complexes
+  * visualizing collapsed complexes and the compressed and reconstructed signal
 ## Notebooks
 
 * [`bla.ipynb`]: bla

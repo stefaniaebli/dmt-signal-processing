@@ -51,21 +51,21 @@
     ```
 ## Code
 * **dmtsignal.py**: 
-  * storing cell complexes
-  * computing boundaries
-  * computing laplacians
-  * computing collapsed complexes and their respective boundaries
-  * computing compressed and reconstructed signal
-  * optimal up-matchings
-  * optimal down-matchings
-  * random sequences of collapses
+  * stores cell complexes
+  * computes boundaries
+  * computes laplacians
+  * computes collapsed complexes and their respective boundaries
+  * computes compressed and reconstructed signal
+  * computes optimal up-matchings
+  * computes optimal down-matchings
+  * computes random sequences of collapses
 * **dmtvisual.py**: 
   * visualizes nodes, edges and traingles in simplicial complexes
   * visualizes collapsed complexes and the compressed and reconstructed signal
 ## Notebooks
 
 * **up-collapses.ipynb**: exlopres signal compression and reconstruction with up-collapses and provides examplesof optimal up-matching algorithm.
-* **down-collapses.ipynb**: exlopres signal compression and reconstruction with down-collapses and provides examplesof optimal down-matching algorithm.
+* **down-collapses.ipynb**: exlopres signal compression and reconstruction with down-collapses and provides example sof optimal down-matching algorithm.
  
 
 
@@ -82,7 +82,7 @@ Please cite our paper if you use it.
   booktitle = {},
   year = {2021},
   archiveprefix = {arXiv},
-  eprint = {2010.03633},
+  eprint = {},
   url = {},
 }
 ```

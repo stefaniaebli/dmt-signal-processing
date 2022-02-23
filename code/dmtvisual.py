@@ -24,8 +24,7 @@ def get_positions(points,simplices, dim):
     return polygons
       
 def value2color(values):
-    values -= values.min()
-    values = values/(values.max()-values.min())
+    values = (values-values.min())/(values.max()-values.min())
     return mpl.cm.viridis(values)
 
 def plot_nodes(colors,points, ax=None,**kwargs):
@@ -165,7 +164,9 @@ def plot_sequence_edgecollapses(X,dimq,signal,collapsed_X,collapsed_signal,phips
         s1[up]=mcolors.to_rgba('darksalmon') #sandybrown
     plot_nodes(s0, points,ax=axes[2,0], zorder=3,s=size_nodes)
     plot_edges_plain(s1,points,X, ax=axes[2,0], zorder=2,linewidths=size_lines)
-    if len(X)>2: plot_triangles_plain(s2,points,X, ax=axes[2,0], zorder=1)
+    if len(X)>2: 
+        s2=np.array([mcolors.to_rgba(color_tri)]*len(X[2]))
+        plot_triangles_plain(s2,points,X, ax=axes[2,0], zorder=1)
     axes[2,0].set_title("Collapsed Simplices")
     plt.colorbar(axes[2,0].collections[0], ax=axes[2,0])
     axes[2,0].set_xticks([])
@@ -242,7 +243,8 @@ def plot_hodge_decomp(X,s1,kX,phispsis,trange,type_collapse='up',c1='teal',c2='c
     
     down=downs[1]
     lap=laplacians[1]
-    vh,vech=sparse.linalg.eigsh(lap, 1, which='SM')
+    hv=lap.shape[0]-int(lap.shape[0]/2)
+    vh,vech=sparse.linalg.eigsh(lap, hv, which='SM')
     basis_h=vech[:,np.where(vh<10**(-6))[0]]
 
 
@@ -302,7 +304,13 @@ def height_function(X,points):
         height_fun.append((lines[i][0][1]+lines[i][1][1])/2)
     return height_fun
 
+def dist_center_function(X,points):
+    lines=get_positions(points,X,1)
+    center_fun=[]
+    for i in range(len(lines)):
+        center_fun.append(np.sqrt(((lines[i][0][0]+lines[i][1][0])/2 -0.5)**2+((lines[i][0][1]+lines[i][1][1])/2-0.5)**2))
 
+    return center_fun
 
 def compute_min_max(signal,phipsis,collapsed_signal):
     s1 = signal

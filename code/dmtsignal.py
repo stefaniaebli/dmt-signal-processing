@@ -768,6 +768,14 @@ def sequence_optimal_up_collapses(X,kX,dimq,signal,steps,random=False):
     all_signals=[signal]
     all_collapses=[]
     all_losses=[]
+    total_psi=[]
+    total_phi=[]
+    total_loss=[]
+    
+    a1=0
+    if dimq>0: 
+        a1=len(X[dimq-1])
+    b1=a1+len(X[dimq])
     
     for k in range(steps):
         
@@ -780,29 +788,51 @@ def sequence_optimal_up_collapses(X,kX,dimq,signal,steps,random=False):
         
         a=len(X[dimq-1])
         b=a+len(X[dimq])
-        L=energy_sequence(all_psi,all_phi)[1].toarray()[a:b,a:b]
-        loss=loss_signal(X,kX,collapses=c,dim_collapses=[dimq],signal=signal)
+       
+        #loss=loss_signal(X,kX,collapses=c,dim_collapses=[dimq],signal=signal)
+        matrix_energy=energy_sequence(all_psi,all_phi)[1].toarray()[a:b,a:b]
+        loss= np.linalg.norm(matrix_energy@np.array(signal).T)
         
         psi1=all_psi[-1]
         for j in range(2,len(all_psi)+1):
                 psi1=psi1 @ all_psi[-j]
-                
+        
+        
+        total_phi.append(all_phi[-1])
+        total_psi.append(all_psi[-1])
+        totmatrix_energy=energy_sequence(total_psi,total_phi)[1].toarray()[a1:b1,a1:b1]
+      
+        totloss= np.linalg.norm(totmatrix_energy@np.array(all_signals[0]).T)
+        total_loss.append(totloss)
+        
         
         signal=psi1.toarray()[a:b-1,a:b]@np.array(signal).T
         
+  
+        
         
         kX=all_boundaries[-1]
-        
         X=all_xq[-1]
         
         all_signals.append(signal)
         all_X.append(X)
         all_collapses.append(c[0])
         all_losses.append(loss)
+        #print(np.sum(np.abs(kX[dimq])))
+        try:
+            if len(kX)<(dimq) or np.sum(np.abs(kX[dimq]))==0 or len(X)<(dimq+1):
+                break
+        except:
+            pass
         
-    dimc=[dimq]*len(all_collapses)
-    total_loss=loss_signal(all_X[0],dX,collapses=all_collapses,dim_collapses=dimc,signal=all_signals[0])
-    phispsis=phipsi(all_X[0],dX,collapses=all_collapses,dim_collapses=dimc,signal=all_signals[0])
+        
+    #dimc=[dimq]*len(all_collapses)
+    #total_loss=loss_signal(all_X[0],dX,collapses=all_collapses,dim_collapses=dimc,signal=all_signals[0])
+    
+    
+    
+    phispsis= all_signals[0]-totmatrix_energy@np.array(all_signals[0]).T
+    #phipsi(all_X[0],dX,collapses=all_collapses,dim_collapses=dimc,signal=all_signals[0])
 
     return(all_X,all_collapses,all_losses,total_loss,all_signals,phispsis)
     
@@ -816,6 +846,14 @@ def sequence_optimal_down_collapses(X,kX,dimq,signal,steps,random=False):
     all_signals=[signal]
     all_collapses=[]
     all_losses=[]
+    total_psi=[]
+    total_phi=[]
+    total_loss=[]
+    
+    a1=len(X[dimq])
+    b1=a1+len(X[dimq+1])
+    
+   
     
     for k in range(steps):
         
@@ -828,17 +866,26 @@ def sequence_optimal_down_collapses(X,kX,dimq,signal,steps,random=False):
         a=len(X[dimq])
         b=a+len(X[dimq+1])
         
-        loss=loss_signal(X,kX,collapses=c,dim_collapses=[dimq],signal=signal,type_collapse='down')
+        #loss=loss_signal(X,kX,collapses=c,dim_collapses=[dimq],signal=signal,type_collapse='down')
+        matrix_energy=energy_sequence(all_psi,all_phi)[1].toarray()[a:b,a:b]
+        loss= np.linalg.norm(matrix_energy.T@np.array(signal).T)
         
         phi1=all_phi[-1]
         for j in range(2,len(all_phi)+1):
                 phi1=phi1 @ all_phi[-j]
                 
+        total_phi.append(all_phi[-1])
+        total_psi.append(all_psi[-1])
+        totmatrix_energy=energy_sequence(total_psi,total_phi)[1].toarray()[a1:b1,a1:b1]
+      
+        totloss= np.linalg.norm(totmatrix_energy.T@np.array(all_signals[0]).T)
+        total_loss.append(totloss)
+                
         phiT=phi1.toarray().T
-        signal=phiT[a+1:b,a:b]@np.array(signal).T
         
         
-        
+        signal=phiT[a-1:b-2,a:b]@np.array(signal).T
+     
         kX=all_boundaries[-1]
         
         X=all_xq[-1]
@@ -847,10 +894,12 @@ def sequence_optimal_down_collapses(X,kX,dimq,signal,steps,random=False):
         all_X.append(X)
         all_collapses.append(c[0])
         all_losses.append(loss)
+        if np.sum(np.abs(kX[dimq]))==0 or len(X)<dimq:
+            break
         
-    dimc=[dimq]*len(all_collapses)
-    total_loss=loss_signal(all_X[0],dX,collapses=all_collapses,dim_collapses=dimc,signal=all_signals[0],type_collapse='down')
-    phispsis=phipsi(all_X[0],dX,collapses=all_collapses,dim_collapses=dimc,signal=all_signals[0],type_collapse='down')
+    
+    phispsis= all_signals[0]-totmatrix_energy.T@np.array(all_signals[0]).T
+  
 
     return(all_X,all_collapses,all_losses,total_loss,all_signals,phispsis)
     
@@ -949,4 +998,57 @@ def simulation_collapses(X,kX,dimq,signal,steps,random):
     for k in steps:
         all_X,collapses,all_losses,total_loss,all_signals,phispsis= sequence_optimal_up_collapses(X=X,kX=kX,dimq=dimq,signal=signal,steps=k,random=random)
         total_losses.append(total_loss)    
-    return(total_losses)
+    return(total_losses,phispsis)
+    
+
+def check_hodge_decomp(X,s1,kX,phispsis,trange,type_collapse='up'):        
+    
+    boundaries=kX
+    ups,downs,laplacians=build_up_down_laplacians(boundaries)
+    
+    
+    down=downs[1]
+    lap=laplacians[1]
+    vh,vech=sparse.linalg.eigsh(lap, 30, which='SM')
+    basis_h=vech[:,np.where(vh<10**(-6))[0]]
+    d=basis_h.shape
+
+    if len(ups)>1:
+        up=ups[1]
+        vup,vecup=np.linalg.eigh(up.toarray(), UPLO='L')
+        if trange==None:
+            uprange=len(np.where(vup>10**(-6))[0])
+        if trange!=None:
+            uprange=trange
+        basis_up=vecup[:,np.where(vup>10**(-6))[0]][:,:uprange]
+    
+    vdown,vecdown=np.linalg.eigh(down.toarray(), UPLO='L')
+    if trange==None:
+    
+        downrange=len(np.where(vdown>10**(-6))[0])
+    if trange!=None:
+        
+        downrange=trange
+        
+    
+    
+    
+    basis_down=vecdown[:,np.where(vdown>10**(-6))[0]][:,:downrange]
+    
+
+    hodge_basis=basis_h
+    if type_collapse=="up":
+        hodge_basis=np.hstack((basis_h,basis_down))
+        c=hodge_basis.shape
+        if len(ups)>1:
+            hodge_basis=np.hstack((hodge_basis,basis_up))
+
+    if type_collapse=="down":
+        if len(ups)>1:
+            hodge_basis=np.hstack((basis_h,basis_up))
+        hodge_basis=np.hstack((hodge_basis,basis_down))
+
+    h_dec=hodge_basis.T@s1
+    h_dec_reconstruction=hodge_basis.T@(phispsis)
+    
+    return h_dec,h_dec_reconstruction, c,d

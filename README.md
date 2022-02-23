@@ -41,7 +41,7 @@
 1. Clone this repository.
     ```sh
     git clone https://github.com/stefaniaebli/signal-DMTheory.git
-    cd signal-DMTheory
+    cd cell-signal-processing-DMTheory
     ```
 
 2. Create the environment.

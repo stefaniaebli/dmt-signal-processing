@@ -116,8 +116,8 @@ def build_unweighted_boundaries(simplices):
                                      dtype=np.float32,
                                      shape=(len(simplices[d-1]), len(simplices[d])))
         boundaries.append(boundary)
-        
-     
+
+
     return boundaries
 
 
@@ -151,18 +151,20 @@ def build_weighted_boundaries(simplices,weights):
         assert len(values) == (d+1) * len(simplices[d])
         boundary = coo_matrix((values, (idx_faces, idx_simplices)),
                                      dtype=np.float32,
-                                     shape=(len(simplices[d-1]), len(simplices[d])))       
-        
-        Wn1=weights[d-1]
-        w=weights[d].data[0]
+                                     shape=(len(simplices[d-1]), len(simplices[d])))
+
+        Wn=weights[d]
+
+        w=weights[d-1].data[0]
         nz=np.nonzero(w)[0]
         inv=np.zeros(len(w))
         inv[nz]=(1/(w[nz]))
-        inv_Wn=diags(inv) 
-        boundary=Wn1@boundary@inv_Wn
+        inv_Wn=diags(inv)
+
+        boundary=inv_Wn1@boundary@Wn
         boundaries.append(boundary)
-        
-     
+
+
     return boundaries
 
 
@@ -186,12 +188,12 @@ def build_boundaries(simplices,weights=False):
     """
     if weights==False:
         boundaries=build_unweighted_boundaries(simplices)
-        
+
     else:
         boundaries=build_weighted_boundaries(simplices,weights=weights)
-    
+
     return boundaries
-    
+
 def extract_xq(X,q,wq,dimq):
     """Collapse a pair Q W(Q) in a complex X
 
@@ -200,47 +202,47 @@ def extract_xq(X,q,wq,dimq):
     X: cell complex. List of dictionaries, one per dimension d. The size of the dictionary
         is the number of d-cells. The dictionary's keys are sets corresponding to the name of the cells in XQ. The
         dictionary's values are the indexes of the cells in the boundary.
-    
+
     q: cell in the pair (q,wq) to be collapsed. q is a face of wq. List or string corresponding to the name of the cell.
-    
+
     wq: cell in the pair (q,wq) to be collapsed. wq is a coface of q.
-    
+
     dimq: integer dimension of the cell q
-    
+
     Returns
     -------
     cells_xq: cells in XQ, the cell complex obtained after collapsing (q,wq).List of dictionaries, one per dimension d. The size of the dictionary
         is the number of d-cells. The dictionary's keys are sets corresponding to the name of the cells in XQ. The
         dictionary's values are the indexes of the cells in the boundary.
     """
-    
+
     q=frozenset(q)
     wq=frozenset(wq)
     x=copy.deepcopy(X)
     xq=[None]*len(x)
-   
+
     for d in range(len(xq)):
-  
+
         if d==dimq:
-            
+
             del x[d][q]
             if len(x[d])>0:
                 xq[d]=dict()
                 for k,cell in enumerate(x[d].keys()):
-                  
-                    xq[d][cell]=k                
-            
+
+                    xq[d][cell]=k
+
         if d==dimq +1:
             del x[d][wq]
             if len(x[d])>0:
                 xq[d]=dict()
                 for k,cell in enumerate(x[d].keys()):
                     xq[d][cell]=k
-            
+
         if d!=dimq and d!=dimq+1:
             xq[d]=x[d]
-           
-    cells_xq=list(filter(None, xq))       
+
+    cells_xq=list(filter(None, xq))
     return cells_xq
 
 def extract_total_order(X):
@@ -254,15 +256,15 @@ def extract_total_order(X):
     -------
     tot_order: cells complex X stored as one dictionary. The dictionary's keys are sets corresponding to the name of the cells in X. The
         dictionary's values are the indexes of the cells in the chain homotopy matrices phi and psi.
-    """    
-    
+    """
+
     tot_order=dict()
     k=0
     for d in range(len(X)):
         for cell in X[d].keys():
             tot_order[cell]=k
-            k=k+1   
-            
+            k=k+1
+
     return tot_order
 
 
@@ -274,128 +276,128 @@ def build_Q_bounday(cellsXq,cellsX,q,wq,dimq,kX):
     cellsXq: cell complex given by collapsing (q,wq) in q. List of dictionaries, one per dimension d. The size of the dictionary
         is the number of d-cells. The dictionary's keys are sets corresponding to the name of the cells in XQ. The
         dictionary's values are the indexes of the cells in the boundary.
-        
+
     cellsX: cell complex X. List of dictionaries, one per dimension d. The size of the dictionary
         is the number of d-cells. The dictionary's keys are sets corresponding to the name of the cells in XQ. The
         dictionary's values are the indexes of the cells in the boundary.
-    
+
     q: cell in the pair (q,wq) to be collapsed. q is a face of wq. List or string corresponding to the name of the cell.
-    
+
     wq: cell in the pair (q,wq) to be collapsed. wq is a coface of q.
-    
+
     dimq: integer dimension of the cell q
-    
-    kX: List of boundary operators of X, one per dimension: i-th boundary is in i-th position. List of sparse matrices 
+
+    kX: List of boundary operators of X, one per dimension: i-th boundary is in i-th position. List of sparse matrices
 
     Returns
     -------
     boundaries: List of boundary operators of XQ, one per dimension: i-th boundary is in i-th position. list of sparse matrices
     """
-    
+
     q=frozenset(q)
     wq=frozenset(wq)
-    
-   
-    
+
+
+
     Q_boundaries=list()
-    
+
 
     for d in range(1, len(cellsXq)):
-        
+
         idx_cells, idx_faces, values = [], [], []
-        
+
         ##looking at the dimq-1 boundary
         if d==dimq and d!=0:
             for cell, idx_cell_q in cellsXq[d].items():
                     idx_cell_x=cellsX[d][cell]
-                
+
                     kxT=kX[d-1].T.tolil()
                     non_zero_idx=kxT.rows[idx_cell_x]
-                    
-                    
+
+
                     for j in non_zero_idx:
                         value=kX[d-1].tocsr()[j,idx_cell_x]
                         values.append(value)
                         idx_cells.append(idx_cell_q)
                         idx_faces.append(j)
-                        
+
             boundary=coo_matrix((values, (idx_faces, idx_cells)),dtype=np.float32,shape=(len(cellsXq[d-1]), len(cellsXq[d])))
-            
-            
-                
-        ### looking at the dimq boundary        
+
+
+
+        ### looking at the dimq boundary
         if d==dimq+1:
             for cell, idx_cell_q in cellsXq[d].items():
                     idx_cell_x=cellsX[d][cell]
-                
+
                     kxT=kX[d-1].T.tolil()
-                    
-                
+
+
                     non_zero_idx_cell=kxT.rows[idx_cell_x]
-                    
-                   
+
+
                     non_zero_idx_wq=kxT.rows[cellsX[d][wq]]
-                    
-                    
+
+
                     non_zero_idx=np.unique(np.append(non_zero_idx_cell,non_zero_idx_wq))
                     non_zero_idx=non_zero_idx[non_zero_idx!=cellsX[d-1][q]]
-                    
+
                     for j in non_zero_idx:
-                        
+
                         KXd=kX[d-1].tocsr()
-                       
-                        
+
+
                         value=KXd[j,idx_cell_x]-( KXd[cellsX[d-1][q],idx_cell_x]*KXd[j,cellsX[d][wq]])/(KXd[cellsX[d-1][q],cellsX[d][wq]])
-    
-                        
+
+
                         if value !=0:
                             values.append(value)
                             idx_cells.append(idx_cell_q)
-                      
+
                             idx_faces.append( cellsXq[d-1][list(cellsX[d-1].keys())[j]] )
-                    
+
                     boundary = coo_matrix((values, (idx_faces, idx_cells)),
                                      dtype=np.float32,
                                      shape=(len(cellsXq[d-1]), len(cellsXq[d])))
-           
-  
+
+
 
   ##looking at the dimq+1 boundary
         if d==dimq+2:
             for cell, idx_cell_q in cellsXq[d].items():
                     idx_cell_x=cellsX[d][cell]
-                
+
                     kxT=kX[d-1].T.tolil()
-                    
+
                     non_zero_idx=kxT.rows[idx_cell_x]
                     non_zero_idx=np.array(non_zero_idx)
-                    
+
                     non_zero_idx=non_zero_idx[non_zero_idx!=cellsX[d-1][wq]]
-                 
-                    
-                    
+
+
+
                     for j in non_zero_idx:
                         value=kX[d-1].tocsr()[j,idx_cell_x]
                         if value!=0:
                             values.append(value)
                             idx_cells.append(idx_cell_q)
                             idx_faces.append(cellsXq[d-1][list(cellsX[d-1].keys())[j]])
-                        
+
             boundary=coo_matrix((values, (idx_faces, idx_cells)),dtype=np.float32,shape=(len(cellsXq[d-1]), len(cellsXq[d])))
-            
-            
 
 
-            
+
+
+
         if d!=dimq and d!=dimq+1  and d!=dimq+2:
-            
+
             boundary=kX[d-1]
-                
-                
+
+
 
         Q_boundaries.append(boundary)
-    
-    
+
+
 
     return Q_boundaries
 
@@ -407,33 +409,33 @@ def psi(X,Xq,q,wq,dimq,kX):
     X: cell complex X. List of dictionaries, one per dimension d. The size of the dictionary
         is the number of d-cells. The dictionary's keys are sets corresponding to the name of the cells in XQ. The
         dictionary's values are the indexes of the cells in the boundary.
-        
+
     Xq: cell complex given by collapsing (q,wq) in q. List of dictionaries, one per dimension d. The size of the dictionary
         is the number of d-cells. The dictionary's keys are sets corresponding to the name of the cells in XQ. The
         dictionary's values are the indexes of the cells in the boundary.
-    
+
     q: cell in the pair (q,wq) to be collapsed. q is a face of wq. List or string corresponding to the name of the cell.
-    
+
     wq: cell in the pair (q,wq) to be collapsed. wq is a coface of q.
-    
+
     dimq: integer dimension of the cell q
-    
-    kX: List of boundary operators of X, one per dimension: i-th boundary is in i-th position. List of sparse matrices 
+
+    kX: List of boundary operators of X, one per dimension: i-th boundary is in i-th position. List of sparse matrices
 
     Returns
     -------
     psi: sparse matrix of size X*XQ
-    """   
-    
-    
-    
+    """
+
+
+
     q=frozenset(q)
     wq=frozenset(wq)
     tot_X=extract_total_order(X)
     tot_Xq=extract_total_order(Xq)
-    
+
     ind_x,ind_q,values=[],[],[]
-   
+
     for cell in tot_X.keys():
         if cell== q:
             kxT=kX[dimq].T.tolil()
@@ -442,7 +444,7 @@ def psi(X,Xq,q,wq,dimq,kX):
             non_zero_idx=kxT.rows[idx_wq]
             non_zero_idx=np.array(non_zero_idx)
             non_zero_idx=non_zero_idx[non_zero_idx!=X[dimq][q]]
-            
+
             for idx_face in non_zero_idx:
                 KXd=kX[dimq].tocsr()
                 value= -(KXd[ idx_face,idx_wq ])/KXd[ idx_q,idx_wq ]
@@ -450,18 +452,18 @@ def psi(X,Xq,q,wq,dimq,kX):
                 ind_x.append(tot_X[cell])
                 face= tot_Xq[list(X[dimq].keys())[idx_face]]
                 ind_q.append(face)
-                
+
         if cell!=q and cell!=wq:
-            
+
             values.append(1)
             ind_x.append(tot_X[cell])
             ind_q.append(tot_Xq[cell])
 
     psi=coo_matrix((values, (ind_q, ind_x)),dtype=np.float32,shape=(len(tot_Xq), len(tot_X)))
-            
-            
 
-            
+
+
+
     return psi
 
 def phi(X,Xq,q,wq,dimq,kX):
@@ -472,32 +474,32 @@ def phi(X,Xq,q,wq,dimq,kX):
     X: cell complex X. List of dictionaries, one per dimension d. The size of the dictionary
         is the number of d-cells. The dictionary's keys are sets corresponding to the name of the cells in XQ. The
         dictionary's values are the indexes of the cells in the boundary.
-        
+
     Xq: cell complex given by collapsing (q,wq) in q. List of dictionaries, one per dimension d. The size of the dictionary
         is the number of d-cells. The dictionary's keys are sets corresponding to the name of the cells in XQ. The
         dictionary's values are the indexes of the cells in the boundary.
-            
+
     q: cell in the pair (q,wq) to be collapsed. q is a face of wq. List or string corresponding to the name of the cell.
-    
+
     wq: cell in the pair (q,wq) to be collapsed. wq is a coface of q.
-    
+
     dimq: integer dimension of the cell q
-    
-    kX: List of boundary operators of X, one per dimension: i-th boundary is in i-th position. List of sparse matrices 
+
+    kX: List of boundary operators of X, one per dimension: i-th boundary is in i-th position. List of sparse matrices
 
     Returns
     -------
     psi: sparse matrix of size XQ*X
-    """   
-    
+    """
+
     q=frozenset(q)
     wq=frozenset(wq)
     tot_X=extract_total_order(X)
     tot_Xq=extract_total_order(Xq)
-    
+
     ind_x,ind_q,values=[],[],[]
-    
-    
+
+
     kxT=kX[dimq].tolil()
     idx_wq=X[dimq+1][wq]
     idx_q=X[dimq][q]
@@ -506,32 +508,32 @@ def phi(X,Xq,q,wq,dimq,kX):
     non_zero_idx=non_zero_idx[non_zero_idx!=idx_wq]
 
     cofaces_q=[list(X[dimq+1].keys())[j] for j in non_zero_idx]
-   
+
     for cell,idx_cell in zip(cofaces_q,non_zero_idx):
         KXd=kX[dimq].tocsr()
         value= -(KXd[ idx_q,idx_cell])/KXd[ idx_q,idx_wq ]
         values.append(value)
         ind_x.append(tot_X[wq])
         ind_q.append(tot_Xq[cell])
-        
-        
+
+
     for cell in tot_Xq:
         values.append(1)
         ind_x.append(tot_X[cell])
         ind_q.append(tot_Xq[cell])
-       
-    
+
+
     phi=coo_matrix((values, (ind_x, ind_q)),dtype=np.float32,shape=(len(tot_X), len(tot_Xq)))
 
     return phi
 
 def energy(X,Xq,q,wq,dimq,kX):
     """Return energy of collapsing (q,wq) in X
-    """   
-    
+    """
+
     s=phi(X,Xq,q,wq,dimq,kX)
     r=psi(X,Xq,q,wq,dimq,kX)
-    
+
     return np.linalg.norm(np.identity(s.shape[0]) - s @ r)
 
 def sequence_collpases(X,kX,collapses,dim_collapses):
@@ -542,8 +544,8 @@ def sequence_collpases(X,kX,collapses,dim_collapses):
     X: cell complex X. List of dictionaries, one per dimension d. The size of the dictionary
         is the number of d-cells. The dictionary's keys are sets corresponding to the name of the cells in XQ. The
         dictionary's values are the indexes of the cells in the boundary.
-    
-    kX: List of boundary operators of X, one per dimension: i-th boundary is in i-th position. List of sparse matrices 
+
+    kX: List of boundary operators of X, one per dimension: i-th boundary is in i-th position. List of sparse matrices
 
     collapses: sequences of collapses, list in which the d-entry is the dth-collapse and is given by a list of length 2 whith q and wq as entries
     Returns
@@ -552,8 +554,8 @@ def sequence_collpases(X,kX,collapses,dim_collapses):
     all_phi: list of sparse matrices, phi from C(XQj+1) to C(XQj)
     all_boundaries list of sparse matrices, boundaries of X,XQ1,XQ2..
     all_complexes list of sparse matrices, cell complexes of X,XQ1,XQ2..
-    """   
-    
+    """
+
     all_psi=[]
     all_phi=[]
     all_xq=[]
@@ -570,27 +572,27 @@ def sequence_collpases(X,kX,collapses,dim_collapses):
         kq=build_Q_bounday(xq,x,q,wq,dim_collapses[j],kx)
         phi1=phi(x,xq,q,wq,dim_collapses[j],kx)
         psi1=psi(x,xq,q,wq,dim_collapses[j],kx)
-        
+
         all_xq.append(xq)
         all_phi.append(phi1)
         all_psi.append(psi1)
         all_complexes.append(xq)
         all_boundaries.append(kq)
-        
+
     return all_psi,all_phi, all_boundaries, all_complexes,all_xq
-    
+
 
 def energy_sequence(all_psi,all_phi):
     """Return ||1-psiphi|| and the matrix 1-psiphi
-    """   
+    """
     psi1=all_psi[-1]
     for j in range(2,len(all_psi)+1):
-        psi1=psi1 @ all_psi[-j]     
-    
+        psi1=psi1 @ all_psi[-j]
+
     phi1=all_phi[0]
     for j in range(1,len(all_phi)):
-        phi1=phi1 @ all_phi[j]     
-    
+        phi1=phi1 @ all_phi[j]
+
     energy= np.linalg.norm(np.identity(all_psi[0].shape[1])- phi1@psi1)
     matrix_energy=coo_matrix(np.identity(all_psi[0].shape[1])- phi1@psi1)
     return energy,matrix_energy
@@ -598,89 +600,89 @@ def energy_sequence(all_psi,all_phi):
 
 def phipsi(X,kX,collapses,dim_collapses,signal,type_collapse='up'):
     """Returns phipsi(s) of the signal
-    """  
+    """
     c=collapses
     d=dim_collapses
-    
-  
+
+
     all_psi,all_phi, all_boundaries, all_complexes,all_xq=sequence_collpases(X,kX,collapses=c,dim_collapses=d)
 
- 
+
     psi1=all_psi[-1]
     for j in range(2,len(all_psi)+1):
-        psi1=psi1 @ all_psi[-j]     
-    
+        psi1=psi1 @ all_psi[-j]
+
     phi1=all_phi[0]
     for j in range(1,len(all_phi)):
-        phi1=phi1 @ all_phi[j]     
-    
-    
-    
+        phi1=phi1 @ all_phi[j]
+
+
+
     matrix= phi1@psi1
     ##The following lines can be taken away when doing collapses in different dimensions
-                
-    if type_collapse=='up':  
+
+    if type_collapse=='up':
         a=0
-        if dim_collapses[0]>0: 
+        if dim_collapses[0]>0:
             a=len(X[dim_collapses[0]-1])
         b=a+len(X[dim_collapses[0]])
         matrix1=matrix[a:b,a:b]
         phipsis= matrix1@np.array(signal).T
-    
-   
-    if type_collapse=='down':        
-        
+
+
+    if type_collapse=='down':
+
         a=len(X[dim_collapses[0]])
         b=a+len(X[dim_collapses[0]+1])
         matrix1=matrix[a:b,a:b]
-        
+
         phipsis= matrix1.T@np.array(signal).T
-        
+
     return phipsis
 
 
 def loss_signal(X,kX,collapses,dim_collapses,signal,type_collapse='up'):
     """Returns the topological error s-psiphi(s) of a signal after a sequence of collapsing  in X
-    """  
+    """
     c=collapses
     d=dim_collapses
-    
-  
+
+
     all_psi,all_phi, all_boundaries, all_complexes,all_xq=sequence_collpases(X,kX,collapses=c,dim_collapses=d)
 
- 
+
     psi1=all_psi[-1]
     for j in range(2,len(all_psi)+1):
-        psi1=psi1 @ all_psi[-j]     
-    
+        psi1=psi1 @ all_psi[-j]
+
     phi1=all_phi[0]
     for j in range(1,len(all_phi)):
-        phi1=phi1 @ all_phi[j]     
-    
+        phi1=phi1 @ all_phi[j]
+
     if type_collapse=="up":
         matrix_energy=np.identity(all_psi[0].shape[1])- phi1@psi1
         ##The following lines can be taken away when doing collapses in different dimensions
         a=0
-        if dim_collapses[0]>0: 
+        if dim_collapses[0]>0:
             a=len(X[dim_collapses[0]-1])
         b=a+len(X[dim_collapses[0]])
         matrix_energy1=matrix_energy[a:b,a:b]
-    
+
     if type_collapse=='down':
-       
-        matrix_energy=np.identity(all_psi[0].shape[1])- (phi1@psi1).T         
+
+        matrix_energy=np.identity(all_psi[0].shape[1])- (phi1@psi1).T
         a=len(X[dim_collapses[0]])
         b=a+len(X[dim_collapses[0]+1])
-     
+
         matrix_energy1=matrix_energy[a:b,a:b]
-        
-    
+
+
     loss= np.linalg.norm(matrix_energy1@np.array(signal).T)**2
     return loss
 
-def best_up_collapse(X,kX,dimq,signal): 
+def best_up_collapse(X,kX,dimq,signal):
     """Returns the up-collapse V which minimize the topological reconstructione error ||s-psi_Vphi_V(s)|^2, as described in Algorithm 1
-    """  
+    """
     s=np.array(signal)**2
     Bq=kX[dimq]
     BT=Bq.transpose()
@@ -690,7 +692,7 @@ def best_up_collapse(X,kX,dimq,signal):
     possible_min_q=[]
     possible_min_value=[]
     for wq in range(Bq.shape[1]):
-        
+
         boundary=ind[wq]
         sig_wq=s[boundary]
         d=np.array(C.data[wq])**2
@@ -699,22 +701,22 @@ def best_up_collapse(X,kX,dimq,signal):
         min_sq=np.min(notnan_sig)
         norm_dwq=np.linalg.norm(Bq.tocsr()[ind[wq],wq].todense())**2
         possible_min_value.append(min_sq*norm_dwq)
-        
-        
+
+
         minimum=random.choice(np.where(notnan_sig==min_sq)[0])
-        
+
         idx_q_min=ind[wq][minimum]
         possible_min_q.append(idx_q_min)
     global_min=np.min(possible_min_value)
-  
+
     Wq=random.choice(np.where(possible_min_value==global_min)[0])
     q=possible_min_q[Wq]
-    
+
     return [[list(list(X[dimq].keys())[q]),list(list(X[dimq+1].keys())[Wq])]],global_min
 
-def best_down_collapse(X,kX,dimq,signal): 
-    """Returns the down-collapse V which minimize the topological reconstructione error ||s-phi*_Vpsi*_V(s)|^2 
-    """  
+def best_down_collapse(X,kX,dimq,signal):
+    """Returns the down-collapse V which minimize the topological reconstructione error ||s-phi*_Vpsi*_V(s)|^2
+    """
     s=np.array(signal)**2
     Bq=kX[dimq]
     BT=Bq.copy()
@@ -723,8 +725,8 @@ def best_down_collapse(X,kX,dimq,signal):
 
     possible_min_WQ=[]
     possible_min_value=[]
-  
-    
+
+
     for Q in range(Bq.shape[0]):
 
         boundary=ind[Q]
@@ -743,7 +745,7 @@ def best_down_collapse(X,kX,dimq,signal):
 
         idx_WQ_min=ind[Q][minimum]
         possible_min_WQ.append(idx_WQ_min)
-    global_min=np.min(possible_min_value)  
+    global_min=np.min(possible_min_value)
     q=random.choice(np.where(possible_min_value==global_min)[0])
     Wq=possible_min_WQ[q]
 
@@ -752,17 +754,17 @@ def best_down_collapse(X,kX,dimq,signal):
 
 def random_collapse(X,kX,dimq):
     """Returns a random collapses V =(q,mu(q)) with fixed dim(q)
-    """ 
+    """
     nz=np.array(kX[dimq].nonzero())
     rand=np.random.choice(np.arange(len(nz[0])))
     Wq=nz[:,rand][1]
     q=nz[:,rand][0]
     return([[list(list(X[dimq].keys())[q]),list(list(X[dimq+1].keys())[Wq])]])
 
-    
+
 def sequence_optimal_up_collapses(X,kX,dimq,signal,steps,random=False):
     """Returns a sequence of up-collapse V by iterating single optimal up-collapses for a fixed number of steps. This imoplements Algorithm 2 of the paper
-    """ 
+    """
     dX=kX.copy()
     all_X=[X]
     all_signals=[signal]
@@ -771,49 +773,49 @@ def sequence_optimal_up_collapses(X,kX,dimq,signal,steps,random=False):
     total_psi=[]
     total_phi=[]
     total_loss=[]
-    
+
     a1=0
-    if dimq>0: 
+    if dimq>0:
         a1=len(X[dimq-1])
     b1=a1+len(X[dimq])
-    
+
     for k in range(steps):
-        
+
         if random==False:
             c=best_up_collapse(X,kX,dimq=dimq,signal=signal)[0]
         if random==True:
             c=random_collapse(X,kX,dimq)
-            
+
         all_psi,all_phi, all_boundaries, all_complexes,all_xq=sequence_collpases(X,kX,collapses=c,dim_collapses=[dimq])
-        
+
         a=len(X[dimq-1])
         b=a+len(X[dimq])
-       
+
         #loss=loss_signal(X,kX,collapses=c,dim_collapses=[dimq],signal=signal)
         matrix_energy=energy_sequence(all_psi,all_phi)[1].toarray()[a:b,a:b]
         loss= np.linalg.norm(matrix_energy@np.array(signal).T)
-        
+
         psi1=all_psi[-1]
         for j in range(2,len(all_psi)+1):
                 psi1=psi1 @ all_psi[-j]
-        
-        
+
+
         total_phi.append(all_phi[-1])
         total_psi.append(all_psi[-1])
         totmatrix_energy=energy_sequence(total_psi,total_phi)[1].toarray()[a1:b1,a1:b1]
-      
+
         totloss= np.linalg.norm(totmatrix_energy@np.array(all_signals[0]).T)
         total_loss.append(totloss)
-        
-        
+
+
         signal=psi1.toarray()[a:b-1,a:b]@np.array(signal).T
-        
-  
-        
-        
+
+
+
+
         kX=all_boundaries[-1]
         X=all_xq[-1]
-        
+
         all_signals.append(signal)
         all_X.append(X)
         all_collapses.append(c[0])
@@ -824,20 +826,20 @@ def sequence_optimal_up_collapses(X,kX,dimq,signal,steps,random=False):
                 break
         except:
             pass
-        
-        
+
+
     #dimc=[dimq]*len(all_collapses)
     #total_loss=loss_signal(all_X[0],dX,collapses=all_collapses,dim_collapses=dimc,signal=all_signals[0])
-    
-    
-    
+
+
+
     phispsis= all_signals[0]-totmatrix_energy@np.array(all_signals[0]).T
     #phipsi(all_X[0],dX,collapses=all_collapses,dim_collapses=dimc,signal=all_signals[0])
 
     return(all_X,all_collapses,all_losses,total_loss,all_signals,phispsis)
-    
-    
-    
+
+
+
 def sequence_optimal_down_collapses(X,kX,dimq,signal,steps,random=False):
     """Returns a sequence of down-collapse V by iterating single optimal down-collapses for a fixed number of steps.
     """
@@ -849,99 +851,99 @@ def sequence_optimal_down_collapses(X,kX,dimq,signal,steps,random=False):
     total_psi=[]
     total_phi=[]
     total_loss=[]
-    
+
     a1=len(X[dimq])
     b1=a1+len(X[dimq+1])
-    
-   
-    
+
+
+
     for k in range(steps):
-        
+
         if random==False:
             c=best_down_collapse(X,kX,dimq=dimq,signal=signal)[0]
         if random==True:
             c=random_collapse(X,kX,dimq)
         all_psi,all_phi, all_boundaries, all_complexes,all_xq=sequence_collpases(X,kX,collapses=c,dim_collapses=[dimq])
-        
+
         a=len(X[dimq])
         b=a+len(X[dimq+1])
-        
+
         #loss=loss_signal(X,kX,collapses=c,dim_collapses=[dimq],signal=signal,type_collapse='down')
         matrix_energy=energy_sequence(all_psi,all_phi)[1].toarray()[a:b,a:b]
         loss= np.linalg.norm(matrix_energy.T@np.array(signal).T)
-        
+
         phi1=all_phi[-1]
         for j in range(2,len(all_phi)+1):
                 phi1=phi1 @ all_phi[-j]
-                
+
         total_phi.append(all_phi[-1])
         total_psi.append(all_psi[-1])
         totmatrix_energy=energy_sequence(total_psi,total_phi)[1].toarray()[a1:b1,a1:b1]
-      
+
         totloss= np.linalg.norm(totmatrix_energy.T@np.array(all_signals[0]).T)
         total_loss.append(totloss)
-                
+
         phiT=phi1.toarray().T
-        
-        
+
+
         signal=phiT[a-1:b-2,a:b]@np.array(signal).T
-     
+
         kX=all_boundaries[-1]
-        
+
         X=all_xq[-1]
-        
+
         all_signals.append(signal)
         all_X.append(X)
         all_collapses.append(c[0])
         all_losses.append(loss)
         if np.sum(np.abs(kX[dimq]))==0 or len(X)<dimq:
             break
-        
-    
+
+
     phispsis= all_signals[0]-totmatrix_energy.T@np.array(all_signals[0]).T
-  
+
 
     return(all_X,all_collapses,all_losses,total_loss,all_signals,phispsis)
-    
+
 
 def sequence_given_up_collapses(X,kX,dimq,signal,collapses):
     """Returns the collapses complexes, the reconstruction error and the recontructed signal for a given up-matching
     """
-    
+
     dX=kX.copy()
     all_X=[X]
     all_signals=[signal]
     all_collapses=[]
     all_losses=[]
-    
-    
+
+
     for collapse in collapses:
         c=[collapse]
         all_psi,all_phi, all_boundaries, all_complexes,all_xq=sequence_collpases(X,kX,collapses=c,dim_collapses=[dimq])
-        
+
         a=len(X[dimq-1])
         b=a+len(X[dimq])
         L=energy_sequence(all_psi,all_phi)[1].toarray()[a:b,a:b]
         loss=loss_signal(X,kX,collapses=c,dim_collapses=[dimq],signal=signal)
-        
+
         psi1=all_psi[-1]
         for j in range(2,len(all_psi)+1):
                 psi1=psi1 @ all_psi[-j]
-                
-       
+
+
         signal=psi1.toarray()[a:b-1,a:b]@np.array(signal).T
-        
-        
+
+
         kX=all_boundaries[-1]
         X=all_xq[0]
-        
+
         all_signals.append(signal)
         all_X.append(X)
         all_collapses.append(c[0])
         all_losses.append(loss)
-        
+
     dimc=[dimq]*len(all_collapses)
-    
+
     total_loss=loss_signal(all_X[0],dX,collapses=all_collapses,dim_collapses=dimc,signal=all_signals[0])
     phispsis=phipsi(all_X[0],dX,collapses=all_collapses,dim_collapses=dimc,signal=all_signals[0])
     return(all_X,all_collapses,all_losses,total_loss,all_signals,phispsis)
@@ -955,35 +957,35 @@ def sequence_given_down_collapses(X,kX,dimq,signal,collapses):
     all_signals=[signal]
     all_collapses=[]
     all_losses=[]
-    
-    
+
+
     for collapse in collapses:
         c=[collapse]
         all_psi,all_phi, all_boundaries, all_complexes,all_xq=sequence_collpases(X,kX,collapses=c,dim_collapses=[dimq])
-        
+
         a=len(X[dimq])
         b=a+len(X[dimq+1])
-        
+
         loss=loss_signal(X,kX,collapses=c,dim_collapses=[dimq],signal=signal,type_collapse='down')
-        
+
         phi1=all_phi[-1]
         for j in range(2,len(all_phi)+1):
                 phi1=phi1 @ all_phi[-j]
-                
+
         phiT=phi1.toarray().T
         signal=phiT[a-1:b,a:b]@np.array(signal).T
-        
-        
-        
+
+
+
         kX=all_boundaries[-1]
-        
+
         X=all_xq[-1]
-        
+
         all_signals.append(signal)
         all_X.append(X)
         all_collapses.append(c[0])
         all_losses.append(loss)
-        
+
     dimc=[dimq]*len(all_collapses)
     total_loss=loss_signal(all_X[0],dX,collapses=all_collapses,dim_collapses=dimc,signal=all_signals[0],type_collapse='down')
     phispsis=phipsi(all_X[0],dX,collapses=all_collapses,dim_collapses=dimc,signal=all_signals[0],type_collapse='down')
@@ -997,16 +999,16 @@ def simulation_collapses(X,kX,dimq,signal,steps,random):
     total_losses=[]
     for k in steps:
         all_X,collapses,all_losses,total_loss,all_signals,phispsis= sequence_optimal_up_collapses(X=X,kX=kX,dimq=dimq,signal=signal,steps=k,random=random)
-        total_losses.append(total_loss)    
+        total_losses.append(total_loss)
     return(total_losses,phispsis)
-    
 
-def check_hodge_decomp(X,s1,kX,phispsis,trange,type_collapse='up'):        
-    
+
+def check_hodge_decomp(X,s1,kX,phispsis,trange,type_collapse='up'):
+
     boundaries=kX
     ups,downs,laplacians=build_up_down_laplacians(boundaries)
-    
-    
+
+
     down=downs[1]
     lap=laplacians[1]
     vh,vech=sparse.linalg.eigsh(lap, 30, which='SM')
@@ -1021,20 +1023,20 @@ def check_hodge_decomp(X,s1,kX,phispsis,trange,type_collapse='up'):
         if trange!=None:
             uprange=trange
         basis_up=vecup[:,np.where(vup>10**(-6))[0]][:,:uprange]
-    
+
     vdown,vecdown=np.linalg.eigh(down.toarray(), UPLO='L')
     if trange==None:
-    
+
         downrange=len(np.where(vdown>10**(-6))[0])
     if trange!=None:
-        
+
         downrange=trange
-        
-    
-    
-    
+
+
+
+
     basis_down=vecdown[:,np.where(vdown>10**(-6))[0]][:,:downrange]
-    
+
 
     hodge_basis=basis_h
     if type_collapse=="up":
@@ -1050,5 +1052,5 @@ def check_hodge_decomp(X,s1,kX,phispsis,trange,type_collapse='up'):
 
     h_dec=hodge_basis.T@s1
     h_dec_reconstruction=hodge_basis.T@(phispsis)
-    
+
     return h_dec,h_dec_reconstruction, c,d

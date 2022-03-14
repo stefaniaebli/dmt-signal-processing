@@ -10,6 +10,7 @@ class ChainComplex():
     def add_simplex(self, simplex):
         if simplex not in self[len(simplex)-1].keys():
             self[len(simplex)-1][frozenset(simplex)] = len(self[len(simplex)-1])
+            #subsimplices
 
 
     def delete_simplex(self, simplex):
@@ -20,6 +21,7 @@ class ChainComplex():
                     del self[len(element)-1][element]
                 except KeyError:
                     pass
+            #reenumerate the values
         except KeyError:
              print(f'{simplex} does not exist', simplex)
         

@@ -1,16 +1,18 @@
 from itertools import chain, combinations
 
+from attr import frozen
+
 class ChainComplex():
     def __init__(self) -> None:
         self.__init__ = self
-
-        return self
 
 
     def add_simplex(self, simplex):
         if simplex not in self[len(simplex)-1].keys():
             self[len(simplex)-1][frozenset(simplex)] = len(self[len(simplex)-1])
-            #subsimplices
+            for element in self.__subsimplices(simplex):
+                if element not in self[len(element)-1].keys():
+                    self[len(element)-1][frozenset(element)] = len(self[len(element)-1])
 
 
     def delete_simplex(self, simplex):
@@ -21,7 +23,7 @@ class ChainComplex():
                     del self[len(element)-1][element]
                 except KeyError:
                     pass
-            #reenumerate the values
+            #@TODO value reenumeration 
         except KeyError:
              print(f'{simplex} does not exist', simplex)
         

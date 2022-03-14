@@ -1,4 +1,4 @@
-#symplicial complex object file
+from itertools import chain, combinations
 
 class ChainComplex():
     def __init__(self) -> None:
@@ -10,8 +10,6 @@ class ChainComplex():
     def add_simplex(self, simplex):
         if simplex not in self[len(simplex)-1].keys():
             self[len(simplex)-1][frozenset(simplex)] = len(self[len(simplex)-1])
-    
-        return self
 
 
     def delete_simplex(self, simplex):
@@ -26,7 +24,6 @@ class ChainComplex():
              print(f'{simplex} does not exist', simplex)
         
 
-    def __subsimplices(self, simplex):
-        subsimplices = []
-        for i in range(1, len(simplex)+1):
-            #generate all subsimplices via popping elements
+    def __subsimplices(simplex):
+        s = list(simplex)
+        return chain.from_iterable(combinations(s, r) for r in range(1, len(s)+1))

@@ -1,6 +1,8 @@
 from itertools import chain, combinations
+from dataclasses import dataclass
 
 
+@dataclass
 class ChainComplex:
     def __init__(self) -> None:
         self.__init__ = self

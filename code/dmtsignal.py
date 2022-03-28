@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
+
+#@TODO import refactoring
 import numpy as np
-#@TODO refactor imports
 from scipy import sparse
 from scipy.sparse import coo_matrix,diags
 from scipy.sparse.linalg import inv
+import gudhi as gd
 import copy
 import random
+import matplotlib as mpl
+from matplotlib import pyplot as plt
+from matplotlib import colors as mcolors
 
 def extract_simplices(simplex_tree):
     """Extract simplices from a gudhi simplex tree.

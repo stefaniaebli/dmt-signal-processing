@@ -89,11 +89,11 @@ def build_weighted_boundaries(simplices,weights):
     return boundaries
 
 
-def build_boundaries(simplices,weights=False):
-    if weights==False:
-        boundaries=build_unweighted_boundaries(simplices)
+def build_boundaries(simplices,weights=None):
+    if weights:
+        boundaries=build_weighted_boundaries(simplices, weights)
 
     else:
-        boundaries=build_weighted_boundaries(simplices,weights=weights)
+        boundaries=build_unweighted_boundaries(simplices)
 
     return boundaries

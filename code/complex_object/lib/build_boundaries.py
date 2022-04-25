@@ -9,6 +9,7 @@ def extract_simplices(simplex_tree):
         simplices[k-1][frozenset(simplex)] = len(simplices[k-1])
     return simplices
 
+
 def build_laplacians(boundaries):
     laplacians = list()
     up = coo_matrix(boundaries[0] @ boundaries[0].T)
@@ -21,10 +22,10 @@ def build_laplacians(boundaries):
     laplacians.append(coo_matrix(down))
     return laplacians
 
+
 def build_up_down_laplacians(boundaries):
     laplacians = list()
-    ups=[]
-    downs=[[]]
+    ups, downs = [], [[]]
     up = coo_matrix(boundaries[0] @ boundaries[0].T)
     ups.append(up)
     laplacians.append(up)
@@ -37,7 +38,8 @@ def build_up_down_laplacians(boundaries):
     down = boundaries[-1].T @ boundaries[-1]
     downs.append(down)
     laplacians.append(coo_matrix(down))
-    return ups, downs,laplacians
+    return ups, downs, laplacians
+
 
 def build_unweighted_boundaries(simplices):
     boundaries = list()
@@ -51,15 +53,14 @@ def build_unweighted_boundaries(simplices):
                 idx_faces.append(simplices[d-1][face])
         assert len(values) == (d+1) * len(simplices[d])
         boundary = coo_matrix((values, (idx_faces, idx_simplices)),
-                                     dtype=np.float32,
-                                     shape=(len(simplices[d-1]), len(simplices[d])))
+                              dtype=np.float32,
+                              shape=(len(simplices[d-1]), len(simplices[d])))
         boundaries.append(boundary)
-
 
     return boundaries
 
 
-def build_weighted_boundaries(simplices,weights):
+def build_weighted_boundaries(simplices, weights):
     boundaries = list()
     for d in range(1, len(simplices)):
         idx_simplices, idx_faces, values = [], [], []
@@ -71,29 +72,28 @@ def build_weighted_boundaries(simplices,weights):
                 idx_faces.append(simplices[d-1][face])
         assert len(values) == (d+1) * len(simplices[d])
         boundary = coo_matrix((values, (idx_faces, idx_simplices)),
-                                     dtype=np.float32,
-                                     shape=(len(simplices[d-1]), len(simplices[d])))
+                              dtype=np.float32,
+                              shape=(len(simplices[d-1]), len(simplices[d])))
 
-        Wn=weights[d]
+        Wn = weights[d]
 
-        w=weights[d-1].data[0]
-        nz=np.nonzero(w)[0]
-        inv=np.zeros(len(w))
-        inv[nz]=(1/(w[nz]))
-        inv_Wn=diags(inv)
+        w = weights[d-1].data[0]
+        nz = np.nonzero(w)[0]
+        inv = np.zeros(len(w))
+        inv[nz] = (1/(w[nz]))
+        inv_Wn = diags(inv)
 
-        boundary=inv_Wn@boundary@Wn
+        boundary = inv_Wn@boundary@Wn
         boundaries.append(boundary)
-
 
     return boundaries
 
 
-def build_boundaries(simplices,weights=None):
+def build_boundaries(simplices, weights=None):
     if weights:
-        boundaries=build_weighted_boundaries(simplices, weights)
+        boundaries = build_weighted_boundaries(simplices, weights)
 
     else:
-        boundaries=build_unweighted_boundaries(simplices)
+        boundaries = build_unweighted_boundaries(simplices)
 
     return boundaries

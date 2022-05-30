@@ -10,7 +10,7 @@ class TestComplexMethods(unittest.TestCase):
         self.assertTrue({0,1} in test_object[2].keys())
 
     def test_simplex_deletion(self, test_object=ChainComplex([0,1])):
-        test_object.delete_simplex({0,1})
+        test_object.delete_simplex([0,1])
         self.assertTrue({0,1} not in test_object[2].keys())
 
 
